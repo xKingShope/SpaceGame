@@ -3,57 +3,63 @@ using UnityEngine;
 //Test
 public class HarpoonGun : MonoBehaviour
 {
+    // The Rope reference
     [Header("Scripts Ref:")]
     public HarpoonRope HarpoonRope;
 
+    // The Harpoon gun settings
     [Header("Layers Settings:")]
 
+    // Main Camera reference
     [Header("Main Camera:")]
     public Camera m_camera;
 
+    // The player is the parent object (the gun holder)
+    // Within the player object is the gunPivot and firePoint objects
+    // These are their references
     [Header("Transform Ref:")]
     public Transform gunHolder;
     public Transform gunPivot;
     public Transform firePoint;
 
+    // References the player objects springjoint and rigidbody components
     [Header("Physics Ref:")]
     public SpringJoint m_springJoint;
     public Rigidbody m_rigidbody;
 
+    // References the rope objects line renderer component
     [Header("Line Renderer:")]
     public LineRenderer lineRenderer;
 
+    // References the current projectile (This should be a prefab)
     [Header("Projectile:")]
     public Rigidbody currentProjectile;
 
-    [Header("Projectile State")]
+    // A reference to track whether the projective is active or not
+    [Header("Projectile State - Dont touch")]
     public bool isProjectileActive = false;
     public bool projectileHasCollided = false;
 
+    // The harpoon follows the mouse,
+    // this dictates whether it will rotate over time or follow exactly.
+    // NOTE: Rotation over time is still buggy.
     [Header("Rotation:")]
-    [SerializeField] private bool rotateOverTime = true;
+    [SerializeField] private bool rotateOverTime = false;
     [Range(0, 60)] [SerializeField] private float rotationSpeed = 4;
 
+    // 
     [Header("Distance:")]
     [SerializeField] private bool hasMaxDistance = false;
     [SerializeField] private float maxDistance = 20;
+  
 
-    private enum LaunchType
-    {
-        Transform_Launch,
-        Physics_Launch
-    }
-
+    // The luanch method and speed (This controls how the harpoon reels in)
     [Header("Launching:")]
     [SerializeField] private bool launchToPoint = true;
     [SerializeField] private float launchSpeed = 1f;
     private bool isGrappling = false;
 
-    [Header("No Launch To Point")]
-    [SerializeField] private bool autoConfigureDistance = false;
-    [SerializeField] private float targetDistance = 3f;
-    [SerializeField] private float targetFrequency = 1f;
-
+    // The grapple point reference
     [HideInInspector] public Vector3 grapplePoint;
 
     private void Start()
@@ -70,6 +76,8 @@ public class HarpoonGun : MonoBehaviour
         UpdateGunRotation();
     }
 
+
+    // Update to not allow reload when fired and missed.
     private void HandleInput()
     {
         if (Input.GetKeyDown(KeyCode.Mouse0))
@@ -94,10 +102,16 @@ public class HarpoonGun : MonoBehaviour
         }
     }
 
+    // Handles firing the harpoon under certain conditions
     private void LaunchProjectile()
     {
+        // If there is not a current projectile or an active rope
         if (HarpoonRope.enabled && currentProjectile != null)
         {
+            // Makes the harpoon position the new grapplePoint
+            // Keeps the gun rotation towrads the grapplePoint
+            // Draws the rope line
+            // Pracectile is active
             grapplePoint = currentProjectile.position;
             RotateGun(grapplePoint, true);
             DrawGrappleLine();
@@ -200,6 +214,7 @@ private void UpdateGunRotation()
         isProjectileActive = true;
     }
 
+    // 
     public void OnProjectileCollision()
     {
         projectileHasCollided = true;
@@ -219,6 +234,7 @@ private void UpdateGunRotation()
         lineRenderer.SetPosition(1, endPoint);
     }
 
+
     void RotateGun(Vector3 lookPoint, bool allowRotationOverTime)
     {
         Vector3 distanceVector = lookPoint - gunPivot.position;
@@ -230,22 +246,20 @@ private void UpdateGunRotation()
         }
         else
         {
-            gunPivot.rotation = Quaternion.Euler(0, 0, angle);  // Removed -90 offset
+            gunPivot.rotation = Quaternion.Euler(0, 0, angle);
         }
     }
 
+    // Grapple function
     public void Grapple()
     {
+        // If there is not already a springJoint..
         if (m_springJoint == null) return;
 
+        // Make the spring joint the grapplePoint
         m_springJoint.connectedAnchor = grapplePoint;
-        m_springJoint.spring = targetFrequency;
 
-        if (!launchToPoint)
-        {
-            m_springJoint.maxDistance = autoConfigureDistance ? grapplePoint.magnitude : targetDistance;
-        }
-        else
+        // Transforms the springJoints settings
         {
             Vector3 distanceVector = firePoint.position - gunHolder.position;
             m_springJoint.maxDistance = 4f;
@@ -255,6 +269,7 @@ private void UpdateGunRotation()
         }
     }
 
+    // Resets the players springJioint component so he detaches from the previously grappled object
     private void ResetSpringJoint()
     {
         m_springJoint.connectedAnchor = Vector3.zero;
@@ -282,4 +297,5 @@ private void UpdateGunRotation()
             Gizmos.DrawSphere(grapplePoint, 0.1f);
         }
     }
+
 }
