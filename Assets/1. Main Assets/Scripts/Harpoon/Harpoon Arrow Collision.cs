@@ -5,29 +5,29 @@ public class harpoonCollision : MonoBehaviour
    {
     private HarpoonGun harpoonGun; // Reference to the HarpoonGun script
 
+    // Find the Harpoon gun
     private void Awake()
     {
-        // Attempt to find the HarpoonGun in the scene
         harpoonGun = FindObjectOfType<HarpoonGun>();
     }
+
+    // Harpoon Collision
     private void OnCollisionEnter(Collision collision)
     {
-        // Check if the object we collided with has a specific tag or is of a certain type
+        // Check if the object we collided with an object
         if (collision.gameObject)
-            {   
-            // Notify the HarpoonGun that the projectile has collided
+            {
+            // Notify the HarpoonGun script that the projectile has collided
             if (harpoonGun != null)
             {
                 harpoonGun.OnProjectileCollision();
                 Debug.Log("COLLIDED");
             }
 
-            // Make the object a child of the collided object
-            transform.SetParent(collision.transform);
-
             // Get the Rigidbody component
             Rigidbody rb = GetComponent<Rigidbody>();
 
+            // Make rigidbody freeze
             if (rb != null)
             {
                 // Freeze rotation on all axes
@@ -41,6 +41,20 @@ public class harpoonCollision : MonoBehaviour
                 rb.isKinematic = true;
                 rb.detectCollisions = false; // Disable further collision detection if desired
             }
+
+            // Make the object a child of the collided object
+            transform.SetParent(collision.transform);
+            Rigidbody parentRigidbody = collision.gameObject.GetComponent<Rigidbody>();
+            // Get the Parent objects rigidbody
+            harpoonGun.o_rigidbody = parentRigidbody;
+
+            // Compare the mass of the object and player
+            if (harpoonGun.o_rigidbody != null)
+            {
+                Debug.LogWarning("Object Mass: " + harpoonGun.o_rigidbody.mass);
+                Debug.LogWarning("Player Mass: " + harpoonGun.m_rigidbody.mass);
+            }
+
         }
     }
 }

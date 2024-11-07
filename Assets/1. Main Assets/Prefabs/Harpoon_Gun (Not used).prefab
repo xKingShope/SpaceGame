@@ -889,7 +889,7 @@ GameObject:
   - component: {fileID: 8420177413103954775}
   - component: {fileID: 7566759490139385720}
   m_Layer: 0
-  m_Name: Harpoon_Gun
+  m_Name: Harpoon_Gun (Not used)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

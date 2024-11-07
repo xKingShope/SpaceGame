@@ -1,13 +1,13 @@
 using UnityEngine;
 
-//Test
+// Harpoon Main
 public class HarpoonGun : MonoBehaviour
 {
-    // The Rope reference
+    // The Rope script reference
     [Header("Scripts Ref:")]
     public HarpoonRope HarpoonRope;
 
-    // The Harpoon gun settings
+    // Harpoon gun settings header
     [Header("Layers Settings:")]
 
     // Main Camera reference
@@ -26,6 +26,7 @@ public class HarpoonGun : MonoBehaviour
     [Header("Physics Ref:")]
     public SpringJoint m_springJoint;
     public Rigidbody m_rigidbody;
+    public Rigidbody o_rigidbody;
 
     // References the rope objects line renderer component
     [Header("Line Renderer:")]
@@ -45,14 +46,12 @@ public class HarpoonGun : MonoBehaviour
     // NOTE: Rotation over time is still buggy.
     [Header("Rotation:")]
     [SerializeField] private bool rotateOverTime = false;
-    [Range(0, 60)] [SerializeField] private float rotationSpeed = 4;
+    [Range(0, 60)] [SerializeField] private float rotationSpeed = 4f;
 
-    // 
-    [Header("Distance:")]
-    [SerializeField] private bool hasMaxDistance = false;
-    [SerializeField] private float maxDistance = 20;
+    // The max speed variable for the ApplyGrappleForce function
+    [Header("Distance Speed:")]
+    [SerializeField] private float maxSpeed = 10f;
   
-
     // The luanch method and speed (This controls how the harpoon reels in)
     [Header("Launching:")]
     [SerializeField] private bool launchToPoint = true;
@@ -62,6 +61,11 @@ public class HarpoonGun : MonoBehaviour
     // The grapple point reference
     [HideInInspector] public Vector3 grapplePoint;
 
+    // Detects if the player has already grappled
+    private int grappleCounter = 0;
+
+
+///////////////////////////////////////////////////////////////////////////////////////
     private void Start()
     {
         HarpoonRope.enabled = false;
@@ -74,8 +78,13 @@ public class HarpoonGun : MonoBehaviour
         HandleInput();
         UpdateGrappleLine();
         UpdateGunRotation();
-    }
 
+        if (isGrappling)
+        {
+            UpdateGrappleAnchor(); // Ensure connectedAnchor follows grapplePoint
+        }
+
+    }
 
     // Update to not allow reload when fired and missed.
     private void HandleInput()
@@ -102,7 +111,7 @@ public class HarpoonGun : MonoBehaviour
         }
     }
 
-    // Handles firing the harpoon under certain conditions
+    // Handles firing the harpoon
     private void LaunchProjectile()
     {
         // If there is not a current projectile or an active rope
@@ -120,6 +129,8 @@ public class HarpoonGun : MonoBehaviour
         }
     }
 
+    // Pulls the Grapple function and sets the isGrappling bool to true, 
+    // adds debug message for current projctile state
     private void StartGrappling()
     {
         if (isProjectileActive && projectileHasCollided)
@@ -134,15 +145,16 @@ public class HarpoonGun : MonoBehaviour
         }
     }
 
+
     private void StopGrappling()
     {
         isGrappling = false;
         HarpoonRope.enabled = false;
         ResetSpringJoint();
-        //m_rigidbody.useGravity = true;
         lineRenderer.enabled = false;
         isProjectileActive = false;
         projectileHasCollided = false; // Reset the collision flag
+        grappleCounter = 0;
         Debug.Log("Projectile IS NOT Active.");
     }
 
@@ -153,10 +165,20 @@ public class HarpoonGun : MonoBehaviour
             grapplePoint = currentProjectile.position;
             DrawGrappleLine();
 
-            if (isGrappling)
+            if (isGrappling && grappleCounter == 0)
             {
                 ApplyGrappleForce();
             }
+        }
+    }
+
+    // This function will continuously update the connectedAnchor to follow the grapplePoint
+    private void UpdateGrappleAnchor()
+    {
+        if (m_springJoint != null && isGrappling)
+        {
+            // Update the connected anchor to the current grapple point
+            m_springJoint.connectedAnchor = grapplePoint;
         }
     }
 
@@ -164,48 +186,85 @@ public class HarpoonGun : MonoBehaviour
     {
         if (launchToPoint)
         {
-            Vector3 direction = grapplePoint - firePoint.position;
-            float distance = direction.magnitude;
-            direction.Normalize();
+            // If the player is heavier, move object towards player
+            if (m_rigidbody.mass > o_rigidbody.mass)
+            {
+                Vector3 direction = firePoint.position - grapplePoint;
+                float distance = direction.magnitude;
+                direction.Normalize();
+                float stopDistance = 1f;
 
-            float forceMagnitude = launchSpeed * Mathf.Clamp01(distance / maxDistance);
-            m_rigidbody.AddForce(direction * forceMagnitude, ForceMode.VelocityChange);
+                if (distance > stopDistance)
+                {
+                    float forceMagnitude = launchSpeed * Mathf.Clamp01(distance / maxSpeed);
+                    // Clamps max force applied
+                    forceMagnitude = Mathf.Min(forceMagnitude, .005f);
+                    // Applies the force
+                    o_rigidbody.AddForce(direction * forceMagnitude, ForceMode.VelocityChange);
+                }
+                else
+                {
+                    grappleCounter = 1;
+                }
+            }
+
+            // If the player is lighter, move player towards object
+            else if (m_rigidbody.mass < o_rigidbody.mass)
+            {
+                Vector3 direction = grapplePoint - firePoint.position;
+                float distance = direction.magnitude;
+                direction.Normalize();
+                float stopDistance = 1f;
+
+                if (distance > stopDistance)
+                {
+                    float forceMagnitude = launchSpeed * Mathf.Clamp01(distance / maxSpeed);
+                    // Clamps max force applied
+                    forceMagnitude = Mathf.Min(forceMagnitude, .7f);
+                    // Applies the force
+                    m_rigidbody.AddForce(direction * forceMagnitude, ForceMode.VelocityChange);
+                }
+                else
+                {
+                    grappleCounter = 1;
+                }
+            }
         }
 
         RotateGun(grapplePoint, true);
     }
 
 
-private void UpdateGunRotation()
-{
-    if (!isProjectileActive)
+    private void UpdateGunRotation()
     {
-        Vector3 mousePos = Input.mousePosition;
-
-        // Ray from the camera to the mouse position
-        Ray ray = m_camera.ScreenPointToRay(mousePos);
-
-        // Define a plane (for example, the plane at the gun's pivot height)
-        Plane plane = new Plane(Vector3.forward, gunPivot.position); // Assuming forward axis is the correct plane
-
-        float distance; 
-        if (plane.Raycast(ray, out distance))
+        if (!isProjectileActive)
         {
-            // Get the point of intersection between the ray and the plane
-            Vector3 worldMousePos = ray.GetPoint(distance);
+            Vector3 mousePos = Input.mousePosition;
 
-            // Rotate gun towards the mouse position
-            RotateGun(worldMousePos, true);
+            // Ray from the camera to the mouse position
+            Ray ray = m_camera.ScreenPointToRay(mousePos);
+
+            // Define a plane (for example, the plane at the gun's pivot height)
+            Plane plane = new Plane(Vector3.forward, gunPivot.position); // Assuming forward axis is the correct plane
+
+            float distance; 
+            if (plane.Raycast(ray, out distance))
+            {
+                // Get the point of intersection between the ray and the plane
+                Vector3 worldMousePos = ray.GetPoint(distance);
+
+                // Rotate gun towards the mouse position
+                RotateGun(worldMousePos, true);
+            }
+        }
+        else
+        {
+            // Rotate gun towards the grapple point
+            RotateGun(grapplePoint, true);
         }
     }
-    else
-    {
-        // Rotate gun towards the grapple point
-        RotateGun(grapplePoint, true);
-    }
-}
 
-
+    // References for the current projectile
     public void SetCurrentProjectile(Rigidbody projectile)
     {
         currentProjectile = projectile;
@@ -214,14 +273,24 @@ private void UpdateGunRotation()
         isProjectileActive = true;
     }
 
-    // 
+    // Updated OnProjectileCollision method to set grapple point and connect spring joint
     public void OnProjectileCollision()
     {
         projectileHasCollided = true;
-        //isProjectileActive = false;
         Debug.Log("Projectile Collided.");
-    }
 
+        // Set the grapple point to the projectile’s collision position
+        grapplePoint = currentProjectile.position;
+        
+        // Enable the spring joint to connect to the grapple point
+        m_springJoint.connectedBody = null; // Ensures it connects to a fixed point in world space
+        m_springJoint.connectedAnchor = grapplePoint;
+
+        // Activate the rope visuals
+        HarpoonRope.enabled = true;
+    }
+    
+    // Draws the line renderer between the firePoint and the grapplePoint
     void DrawGrappleLine()
     {
         lineRenderer.enabled = true;
@@ -232,6 +301,16 @@ private void UpdateGunRotation()
 
         lineRenderer.SetPosition(0, startPoint);
         lineRenderer.SetPosition(1, endPoint);
+    }
+
+    // Same thing as DrawsGrappleLine but in reverse.. for reloading
+    void DrawGrappleLineReverse()
+    {
+        lineRenderer.enabled = true;
+        Vector3 startPoint = grapplePoint;
+        Vector3 endPoint = firePoint.position;
+        startPoint.z = 0;
+        endPoint.z = 0;
     }
 
 
@@ -250,26 +329,21 @@ private void UpdateGunRotation()
         }
     }
 
-    // Grapple function
+    // Modified Grapple function
     public void Grapple()
     {
-        // If there is not already a springJoint..
-        if (m_springJoint == null) return;
-
-        // Make the spring joint the grapplePoint
-        m_springJoint.connectedAnchor = grapplePoint;
-
-        // Transforms the springJoints settings
-        {
-            Vector3 distanceVector = firePoint.position - gunHolder.position;
-            m_springJoint.maxDistance = 4f;
-            m_springJoint.minDistance = 0f;
-            m_springJoint.spring = 5f;
-            m_springJoint.damper = 1;
-        }
+        // Transforms the spring joint's settings
+        Vector3 distanceVector = firePoint.position - grapplePoint;
+        m_springJoint.connectedAnchor = grapplePoint; // Connect to the grapple point directly
+        m_springJoint.maxDistance = 1; // Maximum length of the "rope"
+        m_springJoint.minDistance = 1f; // Prevent compression but allow flexibility
+        m_springJoint.spring = 0.1f;       // Higher spring value for stronger pull
+        m_springJoint.damper = 50f;        // Moderate damping for smooth movement
+        m_springJoint.tolerance = .5f;  // Keep the rope taut with minimal slack
     }
 
-    // Resets the players springJioint component so he detaches from the previously grappled object
+
+    // Resets the players springJoint component so they detach from the previously grappled object
     private void ResetSpringJoint()
     {
         m_springJoint.connectedAnchor = Vector3.zero;
@@ -279,15 +353,8 @@ private void UpdateGunRotation()
         m_springJoint.damper = 0;
     }
 
-    private void OnDrawGizmosSelected()
-    {
-        if (firePoint != null && hasMaxDistance)
-        {
-            Gizmos.color = Color.green;
-            Gizmos.DrawWireSphere(firePoint.position, maxDistance);
-        }
-    }
 
+    // Gizmo for testing harpoon accuracy
     void OnDrawGizmos()
     {
         if (lineRenderer.enabled)
