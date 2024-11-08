@@ -46,26 +46,29 @@ public class LaunchHarpoon : MonoBehaviour
     {
         Vector3 initialPosition = rb.position;
 
-        while (true)
+        if (harpoonGun.isProjectileActive && !harpoonGun.projectileHasCollided)
         {
-            // Calculate the distance traveled
-            float distanceTraveled = Vector3.Distance(initialPosition, rb.position);
-
-            // If the distance traveled exceeds the deceleration distance, start reducing velocity
-            if (distanceTraveled >= distanceToDecelerate)
+            while (true)
             {
-                // Reduce the velocity
-                rb.velocity -= rb.velocity.normalized * decelerationRate * Time.deltaTime;
+                // Calculate the distance traveled
+                float distanceTraveled = Vector3.Distance(initialPosition, rb.position);
 
-                // If the harpoon has stopped moving, exit the loop
-                if (rb.velocity.magnitude < 0.1f)
+                // If the distance traveled exceeds the deceleration distance, start reducing velocity
+                if (distanceTraveled >= distanceToDecelerate)
                 {
-                    rb.velocity = Vector3.zero; // Stop the harpoon
-                    break;
-                }
-            }
+                    // Reduce the velocity
+                    rb.velocity -= rb.velocity.normalized * decelerationRate * Time.deltaTime;
 
-            yield return null; // Wait for the next frame
+                    // If the harpoon has stopped moving, exit the loop
+                    if (rb.velocity.magnitude < 0.1f)
+                    {
+                        rb.velocity = Vector3.zero; // Stop the harpoon
+                        harpoonGun.missed = true;
+                        break;
+                    }
+                }
+                yield return null; // Wait for the next frame
+            }
         }
     }
 }
