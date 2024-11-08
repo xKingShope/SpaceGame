@@ -34,11 +34,19 @@ public class LaunchHarpoon : MonoBehaviour
                 // Start the coroutine to handle deceleration
                 StartCoroutine(DecelerateHarpoon(rb));
             }
-            else // If there is an active harpoon, destroy it
+            // If there is an active harpoon, destroy it
+            else if (harpoonGun.grappleCounter == 0)
             {   
                 Destroy(currentHarpoon);
                 currentHarpoon = null; // Reset the reference
             }
+        }
+        // Inform HarpoonGun about the new projectile
+        if (harpoonGun.harpoonDestroy == true)
+        {
+            Destroy(currentHarpoon);
+            currentHarpoon = null; // Reset the reference
+            Debug.Log("There is no active harpoon");
         }
     }
 

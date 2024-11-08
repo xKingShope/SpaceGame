@@ -52,7 +52,8 @@ public class HarpoonGun : MonoBehaviour
     [HideInInspector] public bool missed = false;
 
     // Prevents multiple grappling
-    private int grappleCounter = 0;
+    public int grappleCounter = 0;
+    public bool harpoonDestroy = false;
 
     // ---------------------------------------------------------------------------------------
     // Initialization
@@ -76,8 +77,7 @@ public class HarpoonGun : MonoBehaviour
 
         if (missed)
         {
-            ResetSpringJoint();
-            Reload();
+            Reload(); harpoonDestroy = false;
         }
     }
 
@@ -88,8 +88,7 @@ public class HarpoonGun : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.Mouse0))
         {
             if (!isProjectileActive) LaunchProjectile();
-            //else Reload();
-        }
+        } else if (grappleCounter == 1) Reload(); grappleCounter = 0;
 
         if (Input.GetKeyDown(KeyCode.Mouse1)) StartGrappling();
     }
@@ -149,6 +148,9 @@ public class HarpoonGun : MonoBehaviour
         projectileHasCollided = false;
         missed = false;
         Debug.Log("Projectile IS NOT Active.");
+        ResetSpringJoint();
+        grappleCounter = 0;
+
     }
 
     private void Reload()
@@ -164,9 +166,12 @@ public class HarpoonGun : MonoBehaviour
         // Apply force to the target Rigidbody
         currentProjectile.AddForce(returnDirection * returnForceMagnitude, ForceMode.VelocityChange);
         
-        if (returnDistance <= 3f)
-        StopGrappling();
-
+        if (returnDistance <= .5f)
+        {
+            harpoonDestroy = true;
+            StopGrappling();
+            Debug.Log("Reached");
+        }
     }
 
 
@@ -204,8 +209,7 @@ public class HarpoonGun : MonoBehaviour
             float distance = direction.magnitude;
             direction.Normalize();
             
-            if (distance <= 0.2f)
-                grappleCounter = 0;
+            if (distance <= 0.2f) grappleCounter = 1;
 
             float forceMagnitude = launchSpeed * Mathf.Clamp01(distance / maxSpeed);
             forceMagnitude = Mathf.Min(forceMagnitude, 0.5f); // Force magnitude limited for static objects
@@ -222,8 +226,7 @@ public class HarpoonGun : MonoBehaviour
             float distance = direction.magnitude;
             direction.Normalize();
 
-            if (distance <= 0.2f)
-                grappleCounter = 0;
+            if (distance <= 0.2f) grappleCounter = 1;
 
             float forceMagnitude = launchSpeed * Mathf.Clamp01(distance / maxSpeed);
             forceMagnitude = Mathf.Min(forceMagnitude, (playerRigidbody.mass > objectRigidbody.mass || isObjectStatic) ? 0.005f : 0.7f);
