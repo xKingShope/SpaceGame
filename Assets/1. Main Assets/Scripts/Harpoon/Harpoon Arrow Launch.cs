@@ -16,7 +16,7 @@ public class LaunchHarpoon : MonoBehaviour
     void Update()
     {
         // Check for firing or deleting the projectile
-        if (Input.GetButtonDown("Fire1"))
+        if (Input.GetKeyDown(KeyCode.Mouse0))
         {
             if (currentHarpoon == null) // If there is no active harpoon
             {
@@ -33,20 +33,18 @@ public class LaunchHarpoon : MonoBehaviour
 
                 // Start the coroutine to handle deceleration
                 StartCoroutine(DecelerateHarpoon(rb));
-            }
-            // If there is an active harpoon, destroy it
-            else if (harpoonGun.grappleCounter == 0)
-            {   
-                Destroy(currentHarpoon);
-                currentHarpoon = null; // Reset the reference
+
             }
         }
+        
         // Inform HarpoonGun about the new projectile
         if (harpoonGun.harpoonDestroy == true)
         {
             Destroy(currentHarpoon);
             currentHarpoon = null; // Reset the reference
             Debug.Log("There is no active harpoon");
+            harpoonGun.harpoonDestroy = false;
+            harpoonGun.grappleCounter = 0;
         }
     }
 
@@ -58,6 +56,12 @@ public class LaunchHarpoon : MonoBehaviour
         {
             while (true)
             {
+                // Check if the projectile has collided
+                if (harpoonGun.projectileHasCollided)
+                {
+                    yield break; // Exit the coroutine if collision has occurred
+                }
+
                 // Calculate the distance traveled
                 float distanceTraveled = Vector3.Distance(initialPosition, rb.position);
 
@@ -72,7 +76,7 @@ public class LaunchHarpoon : MonoBehaviour
                     {
                         rb.velocity = Vector3.zero; // Stop the harpoon
                         harpoonGun.missed = true;
-                        break;
+                        yield break; // Exit the coroutine
                     }
                 }
                 yield return null; // Wait for the next frame

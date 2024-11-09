@@ -3,6 +3,7 @@ using UnityEngine;
 public class HarpoonCollision : MonoBehaviour
 {
     private HarpoonGun harpoonGun; // Reference to the HarpoonGun script
+    public float bounceForce = .1f;
 
     // ---------------------------------------------------------------------------------------
     // Initialization
@@ -16,12 +17,28 @@ public class HarpoonCollision : MonoBehaviour
     // Collision Handling
     private void OnCollisionEnter(Collision collision)
     {
-        if (collision.gameObject)
+        if (!harpoonGun.missed)
         {
-            HandleProjectileCollision();
-            FreezeRigidbody();
-            AttachToCollidedObject(collision.transform);
-            UpdateObjectRigidbody(collision);
+            if (collision.gameObject)
+            {
+                HandleProjectileCollision();
+                FreezeRigidbody();
+                AttachToCollidedObject(collision.transform);
+                UpdateObjectRigidbody(collision);
+            }
+        } 
+        else if (collision.gameObject)
+        {
+            Rigidbody rb = GetComponent<Rigidbody>();
+
+            // Get the normal of the collision surface
+            Vector3 bounceDirection = collision.contacts[0].normal;
+            // Apply a force in the opposite direction
+            rb.AddForce(bounceDirection * bounceForce/4, ForceMode.Impulse);
+            // Apply a gradual slowdown to the velocity
+            float slowdownFactor = .1f; // Adjust this value to control how quickly the object slows down
+            rb.velocity = rb.velocity * slowdownFactor;
+            rb.angularVelocity = rb.angularVelocity * slowdownFactor;
         }
     }
 
