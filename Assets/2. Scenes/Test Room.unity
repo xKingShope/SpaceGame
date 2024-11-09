@@ -1592,14 +1592,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fda2eb00af3009d4683a161339e3bcec, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  HarpoonRope: {fileID: 2049562133}
-  m_camera: {fileID: 443539561}
+  harpoonRope: {fileID: 2049562133}
+  mainCamera: {fileID: 443539561}
   gunHolder: {fileID: 355220060}
   gunPivot: {fileID: 1547541637}
   firePoint: {fileID: 943187241}
-  m_springJoint: {fileID: 355220061}
-  m_rigidbody: {fileID: 355220062}
-  o_rigidbody: {fileID: 0}
+  springJoint: {fileID: 355220061}
+  playerRigidbody: {fileID: 355220062}
+  objectRigidbody: {fileID: 0}
+  collidedObject: {fileID: 0}
   lineRenderer: {fileID: 2049562132}
   currentProjectile: {fileID: 8570802907953544583, guid: da42cfd792695a54b9519765088bdc6f,
     type: 3}
@@ -1611,6 +1612,9 @@ MonoBehaviour:
   launchToPoint: 1
   launchSpeed: 3
   grapplePoint: {x: 0, y: 0, z: 0}
+  missed: 0
+  grappleCounter: 0
+  harpoonDestroy: 0
 --- !u!1 &792415919
 GameObject:
   m_ObjectHideFlags: 0
