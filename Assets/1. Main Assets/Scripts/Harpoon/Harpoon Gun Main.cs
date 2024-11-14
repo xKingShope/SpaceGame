@@ -6,6 +6,7 @@ public class HarpoonGun : MonoBehaviour
     // References the Rope Script
     [Header("Script References")]
     public HarpoonRope harpoonRope;
+    public HarpoonUnstuck harpoonUnstuck;
 
     // The main camera
     [Header("Camera")]
@@ -44,7 +45,7 @@ public class HarpoonGun : MonoBehaviour
     [SerializeField] private float maxSpeed = 10f;
     [SerializeField] private bool launchToPoint = true;
     [SerializeField] private float launchSpeed = 1f;
-    private bool isGrappling = false;
+    public bool isGrappling = false;
 
     // Grapple point is the harpoon arrow collision point
     [HideInInspector] public Vector3 grapplePoint;
@@ -249,7 +250,6 @@ public class HarpoonGun : MonoBehaviour
 
             // Apply force to the target Rigidbody
             targetRigidbody.AddForce(direction * forceMagnitude, ForceMode.VelocityChange);
-
         }
 
         RotateGun(grapplePoint, true);
