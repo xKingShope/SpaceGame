@@ -862,6 +862,7 @@ MonoBehaviour:
   acceleration: 0.05
   maxSpeed: 1
   boostPower: 5
+  Gun: {fileID: 0}
 --- !u!135 &355220064
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -1591,13 +1592,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fda2eb00af3009d4683a161339e3bcec, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  HarpoonRope: {fileID: 2049562133}
-  m_camera: {fileID: 443539561}
+  harpoonRope: {fileID: 0}
+  mainCamera: {fileID: 0}
   gunHolder: {fileID: 355220060}
   gunPivot: {fileID: 1547541637}
   firePoint: {fileID: 943187241}
-  m_springJoint: {fileID: 355220061}
-  m_rigidbody: {fileID: 355220062}
+  springJoint: {fileID: 0}
+  playerRigidbody: {fileID: 0}
+  objectRigidbody: {fileID: 0}
+  collidedObject: {fileID: 0}
   lineRenderer: {fileID: 2049562132}
   currentProjectile: {fileID: 8570802907953544583, guid: da42cfd792695a54b9519765088bdc6f,
     type: 3}
@@ -1605,14 +1608,13 @@ MonoBehaviour:
   projectileHasCollided: 0
   rotateOverTime: 1
   rotationSpeed: 18.3
-  hasMaxDistance: 1
-  maxDistance: 11.75
+  maxSpeed: 10
   launchToPoint: 1
   launchSpeed: 3
-  autoConfigureDistance: 0
-  targetDistance: 22.1
-  targetFrequency: 1.98
   grapplePoint: {x: 0, y: 0, z: 0}
+  missed: 0
+  grappleCounter: 0
+  harpoonDestroy: 0
 --- !u!1 &792415919
 GameObject:
   m_ObjectHideFlags: 0
