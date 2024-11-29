@@ -6,6 +6,7 @@ public class HarpoonGun : MonoBehaviour
     // References the Rope Script
     [Header("Script References")]
     public HarpoonRope harpoonRope;
+    public HarpoonUnstuck harpoonUnstuck;
 
     // The main camera
     [Header("Camera")]
@@ -44,7 +45,7 @@ public class HarpoonGun : MonoBehaviour
     [SerializeField] private float maxSpeed = 10f;
     [SerializeField] private bool launchToPoint = true;
     [SerializeField] private float launchSpeed = 1f;
-    private bool isGrappling = false;
+    public bool isGrappling = false;
 
     // Grapple point is the harpoon arrow collision point
     [HideInInspector] public Vector3 grapplePoint;
@@ -165,7 +166,7 @@ public class HarpoonGun : MonoBehaviour
         Debug.Log("Projectile IS NOT Active.");
     }
 
-    private void Reload()
+    public void Reload()
     {
         Vector3 returnDirection = firePoint.position - grapplePoint;
         float returnDistance = returnDirection.magnitude;
@@ -182,7 +183,7 @@ public class HarpoonGun : MonoBehaviour
         }
     }
 
-    private void Detatch()
+    public void Detatch()
     {
         harpoonDestroy = true;
         StopGrappling();
@@ -224,7 +225,7 @@ public class HarpoonGun : MonoBehaviour
             float distance = direction.magnitude;
             direction.Normalize();
             
-            grappleCounter = (distance <= 0.5f) ? 1 : 0;
+            grappleCounter = (distance <= 1f) ? 1 : 0;
 
             float forceMagnitude = launchSpeed * Mathf.Clamp01(distance / maxSpeed);
             forceMagnitude = Mathf.Min(forceMagnitude, 0.5f); // Force magnitude limited for static objects
@@ -242,14 +243,13 @@ public class HarpoonGun : MonoBehaviour
             float distance = direction.magnitude;
             direction.Normalize();
 
-            grappleCounter = (distance <= 0.5f) ? 1 : 0;
+            grappleCounter = (distance <= 1f) ? 1 : 0;
 
             float forceMagnitude = launchSpeed * Mathf.Clamp01(distance / maxSpeed);
             forceMagnitude = Mathf.Min(forceMagnitude, (playerRigidbody.mass > objectRigidbody.mass || isObjectStatic) ? 0.005f : 0.7f);
 
             // Apply force to the target Rigidbody
             targetRigidbody.AddForce(direction * forceMagnitude, ForceMode.VelocityChange);
-
         }
 
         RotateGun(grapplePoint, true);
@@ -268,7 +268,7 @@ public class HarpoonGun : MonoBehaviour
                 // Calculate distance to the grapple point
                 float distance = Vector3.Distance(playerRigidbody.position, grapplePoint);
 
-                if (distance > 0.4f)
+                if (distance > 0.2f)
                 {
                 ApplyGrappleForce();
                 }
@@ -329,7 +329,7 @@ public class HarpoonGun : MonoBehaviour
         // Call SetLinePoints to update the line path based on potential collisions
     }
 
-    private void ResetSpringJoint()
+    public void ResetSpringJoint()
     {
         springJoint.connectedAnchor = Vector3.zero;
         springJoint.spring = 0;

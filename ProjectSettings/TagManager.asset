@@ -5,11 +5,13 @@ TagManager:
   serializedVersion: 2
   tags:
   - KinematicObject
+  - Explosion
+  - Harpoon
   layers:
   - Default
   - TransparentFX
   - Ignore Raycast
-  - 
+  - vlight
   - Water
   - UI
   - HarpoonGun

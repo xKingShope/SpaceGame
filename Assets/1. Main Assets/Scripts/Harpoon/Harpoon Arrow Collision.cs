@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 
 public class HarpoonCollision : MonoBehaviour
@@ -26,7 +27,7 @@ public class HarpoonCollision : MonoBehaviour
                 AttachToCollidedObject(collision.transform);
                 UpdateObjectRigidbody(collision);
             }
-        } 
+        }
         else if (collision.gameObject)
         {
             Rigidbody rb = GetComponent<Rigidbody>();
