@@ -42,7 +42,7 @@ public class HarpoonGun : MonoBehaviour
 
     // maxSpeed is the speed being pulled by grappling, launch to point is always true, launchspeed,
     [Header("Grappling Settings")]
-    [SerializeField] private float maxSpeed = 10f;
+    [SerializeField] private float maxSpeed = 20f;
     [SerializeField] private bool launchToPoint = true;
     [SerializeField] private float launchSpeed = 1f;
     public bool isGrappling = false;
