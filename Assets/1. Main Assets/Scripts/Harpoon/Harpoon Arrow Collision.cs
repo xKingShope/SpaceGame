@@ -1,46 +1,87 @@
+using System.Collections;
 using UnityEngine;
 
-public class harpoonCollision : MonoBehaviour
-
-   {
+public class HarpoonCollision : MonoBehaviour
+{
     private HarpoonGun harpoonGun; // Reference to the HarpoonGun script
+    public float bounceForce = .1f;
 
+    // ---------------------------------------------------------------------------------------
+    // Initialization
     private void Awake()
     {
-        // Attempt to find the HarpoonGun in the scene
+        // Find and assign the HarpoonGun instance in the scene
         harpoonGun = FindObjectOfType<HarpoonGun>();
     }
+
+    // ---------------------------------------------------------------------------------------
+    // Collision Handling
     private void OnCollisionEnter(Collision collision)
     {
-        // Check if the object we collided with has a specific tag or is of a certain type
-        if (collision.gameObject)
-            {   
-            // Notify the HarpoonGun that the projectile has collided
-            if (harpoonGun != null)
+        if (!harpoonGun.missed)
+        {
+            if (collision.gameObject)
             {
-                harpoonGun.OnProjectileCollision();
-                Debug.Log("COLLIDED");
+                HandleProjectileCollision();
+                FreezeRigidbody();
+                AttachToCollidedObject(collision.transform);
+                UpdateObjectRigidbody(collision);
             }
-
-            // Make the object a child of the collided object
-            transform.SetParent(collision.transform);
-
-            // Get the Rigidbody component
+        }
+        else if (collision.gameObject)
+        {
             Rigidbody rb = GetComponent<Rigidbody>();
 
-            if (rb != null)
-            {
-                // Freeze rotation on all axes
-                rb.constraints = RigidbodyConstraints.FreezeRotation;
+            // Get the normal of the collision surface
+            Vector3 bounceDirection = collision.contacts[0].normal;
+            // Apply a force in the opposite direction
+            rb.AddForce(bounceDirection * bounceForce/4, ForceMode.Impulse);
+            // Apply a gradual slowdown to the velocity
+            float slowdownFactor = .1f; // Adjust this value to control how quickly the object slows down
+            rb.velocity = rb.velocity * slowdownFactor;
+            rb.angularVelocity = rb.angularVelocity * slowdownFactor;
+        }
+    }
 
-                // Set velocities to zero to stop any movement
-                rb.velocity = Vector3.zero;
-                rb.angularVelocity = Vector3.zero; // Stop any rotational movement
+    // ---------------------------------------------------------------------------------------
+    // Helper Methods
+    private void HandleProjectileCollision()
+    {
+        if (harpoonGun != null)
+        {
+            harpoonGun.OnProjectileCollision();
+            Debug.Log("COLLIDED");
+        }
+    }
 
-                // Make the Rigidbody kinematic to prevent further physics interactions
-                rb.isKinematic = true;
-                rb.detectCollisions = false; // Disable further collision detection if desired
-            }
+    private void FreezeRigidbody()
+    {
+        Rigidbody rb = GetComponent<Rigidbody>();
+        if (rb != null)
+        {
+            rb.constraints = RigidbodyConstraints.FreezeRotation;
+            rb.velocity = Vector3.zero;
+            rb.angularVelocity = Vector3.zero;
+            rb.isKinematic = true;
+            rb.detectCollisions = false;
+        }
+    }
+
+    private void AttachToCollidedObject(Transform collidedTransform)
+    {
+        transform.SetParent(collidedTransform);
+    }
+
+    private void UpdateObjectRigidbody(Collision collision)
+    {
+        Rigidbody parentRigidbody = collision.gameObject.GetComponent<Rigidbody>();
+        harpoonGun.objectRigidbody = parentRigidbody;
+        harpoonGun.collidedObject = collision.gameObject;
+
+        if (parentRigidbody != null)
+        {
+            Debug.LogWarning("Object Mass: " + parentRigidbody.mass);
+            Debug.LogWarning("Player Mass: " + harpoonGun.playerRigidbody.mass);
         }
     }
 }

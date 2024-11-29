@@ -1,4 +1,0 @@
-repository "Space Platformer URP 3D@xBraxton@cloud"
-  path "/"
-    br "/main"
-    co "/main"

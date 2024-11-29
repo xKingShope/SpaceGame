@@ -16,7 +16,7 @@ public class LaunchHarpoon : MonoBehaviour
     void Update()
     {
         // Check for firing or deleting the projectile
-        if (Input.GetButtonDown("Fire1"))
+        if (Input.GetKeyDown(KeyCode.Mouse0))
         {
             if (currentHarpoon == null) // If there is no active harpoon
             {
@@ -33,12 +33,18 @@ public class LaunchHarpoon : MonoBehaviour
 
                 // Start the coroutine to handle deceleration
                 StartCoroutine(DecelerateHarpoon(rb));
+
             }
-            else // If there is an active harpoon, destroy it
-            {   
-                Destroy(currentHarpoon);
-                currentHarpoon = null; // Reset the reference
-            }
+        }
+        
+        // Inform HarpoonGun about the new projectile
+        if (harpoonGun.harpoonDestroy == true)
+        {
+            Destroy(currentHarpoon);
+            currentHarpoon = null; // Reset the reference
+            Debug.Log("There is no active harpoon");
+            harpoonGun.harpoonDestroy = false;
+            harpoonGun.grappleCounter = 0;
         }
     }
 
@@ -46,26 +52,35 @@ public class LaunchHarpoon : MonoBehaviour
     {
         Vector3 initialPosition = rb.position;
 
-        while (true)
+        if (harpoonGun.isProjectileActive && !harpoonGun.projectileHasCollided)
         {
-            // Calculate the distance traveled
-            float distanceTraveled = Vector3.Distance(initialPosition, rb.position);
-
-            // If the distance traveled exceeds the deceleration distance, start reducing velocity
-            if (distanceTraveled >= distanceToDecelerate)
+            while (true)
             {
-                // Reduce the velocity
-                rb.velocity -= rb.velocity.normalized * decelerationRate * Time.deltaTime;
-
-                // If the harpoon has stopped moving, exit the loop
-                if (rb.velocity.magnitude < 0.1f)
+                // Check if the projectile has collided
+                if (harpoonGun.projectileHasCollided)
                 {
-                    rb.velocity = Vector3.zero; // Stop the harpoon
-                    break;
+                    yield break; // Exit the coroutine if collision has occurred
                 }
-            }
 
-            yield return null; // Wait for the next frame
+                // Calculate the distance traveled
+                float distanceTraveled = Vector3.Distance(initialPosition, rb.position);
+
+                // If the distance traveled exceeds the deceleration distance, start reducing velocity
+                if (distanceTraveled >= distanceToDecelerate)
+                {
+                    // Reduce the velocity
+                    rb.velocity -= rb.velocity.normalized * decelerationRate * Time.deltaTime;
+
+                    // If the harpoon has stopped moving, exit the loop
+                    if (rb.velocity.magnitude < 0.1f)
+                    {
+                        rb.velocity = Vector3.zero; // Stop the harpoon
+                        harpoonGun.missed = true;
+                        yield break; // Exit the coroutine
+                    }
+                }
+                yield return null; // Wait for the next frame
+            }
         }
     }
 }
