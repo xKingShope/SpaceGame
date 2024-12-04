@@ -95,7 +95,7 @@ public class HarpoonGun : MonoBehaviour
                 LaunchProjectile();
             }
         
-            if (grappleCounter == 1)
+            if (projectileHasCollided == true)
             {
                 Detatch();
                 ResetSpringJoint();
