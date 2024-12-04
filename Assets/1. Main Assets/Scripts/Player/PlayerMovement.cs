@@ -11,6 +11,7 @@ public class PlayerMovement : MonoBehaviour
     private FixedJoint joint = null;
     private Rigidbody grabbedObject = null;
     private Rigidbody rb;
+    public GameObject Gun;
 
     void Start()
     {
@@ -41,6 +42,9 @@ public class PlayerMovement : MonoBehaviour
     //Player Movement
     void FixedUpdate()
     {
+        // Rotation follows gun
+        transform.rotation = Gun.transform.rotation;
+
         // Increase velocity over time
         currentVelocity += acceleration * Time.fixedDeltaTime;
         // Get input for horizontal (A/D) and vertical (W/S) movement

@@ -5,11 +5,10 @@ using UnityEngine;
 public class KinematicPingPong : MonoBehaviour
 
 {
-    public float speed = 2f; // Speed of movement
-    public float distance = 5f; // Distance to move left and right
+    public float speed = 100f; // Speed of movement
+    public float distance = 300f; // Distance to move to the right
 
     private Vector3 startPosition;
-    //private float direction = 1f; // 1 for right, -1 for left
 
     void Start()
     {
@@ -18,8 +17,18 @@ public class KinematicPingPong : MonoBehaviour
 
     void Update()
     {
-        // Calculate new position
-        float newX = Mathf.PingPong(Time.time * speed, distance) - (distance / 2);
-        transform.position = new Vector3(startPosition.x + newX, transform.position.y, transform.position.z);
+        // Calculate the target position to the right
+        float targetX = startPosition.x + distance;
+
+        // Move the object to the right at the specified speed
+        transform.position += Vector3.right * speed * Time.deltaTime;
+
+        // Stop moving once the object reaches the target position
+        if (transform.position.x >= targetX)
+        {
+            transform.position = new Vector3(targetX, transform.position.y, transform.position.z);
+            enabled = false; // Disable the Update method to stop further movement
+        }
     }
+
 }
