@@ -2,11 +2,11 @@ using UnityEngine;
 
 public class PlayerMovement : MonoBehaviour
 {
-    public float acceleration = 0.05f;
-    public float maxSpeed = 1f; // Maximum speed limit
+    public float acceleration = 0.02f;
+    public float maxSpeed = .2f; // Maximum speed limit
     private float currentVelocity = 0f;
     private float boostSpeed = 0f;
-    public float boostPower = 5f;
+    public float boostPower = 3f;
     private bool grab = false;
     private FixedJoint joint = null;
     private Rigidbody grabbedObject = null;
