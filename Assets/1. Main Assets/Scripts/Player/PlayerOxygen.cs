@@ -4,10 +4,10 @@ using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
 
-public class PlayerLife : MonoBehaviour
+public class PlayerOxygen : MonoBehaviour
 {
     public TextMeshProUGUI oxygenText;
-    public int oxygenStatus;
+    public double oxygenStatus;
     public int oxygenGained;
     public Boolean DEBUG = true;
     float count;
@@ -20,17 +20,18 @@ public class PlayerLife : MonoBehaviour
         oxygenText.GetComponent<TextMeshProUGUI>().text = "Oxygen: " + oxygenStatus;
         if (DEBUG) Debug.Log("Oxygen text set");
     }
-    void FixedUpdate()
+    void Update()
     {
-       //WHY DOES THIS NOT UPDATE MORE THAN ONCE ??
-        if(Input.GetKeyDown(KeyCode.W) || Input.GetKeyDown(KeyCode.A) || Input.GetKeyDown(KeyCode.S) || Input.GetKeyDown(KeyCode.D))
+       //using a while loop freezes the whole program
+        if(Input.GetKey(KeyCode.W) || Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.S) || Input.GetKey(KeyCode.D))
         {
-            oxygenText.GetComponent<TextMeshProUGUI>().text = "Oxygen: " + (oxygenStatus - 1);
+            oxygenStatus -= .01;
+            oxygenText.GetComponent<TextMeshProUGUI>().text = "Oxygen: " + ((int)oxygenStatus);
             if (DEBUG) Debug.Log("Decreased oxygen");
         }
         if (OxygenTankCollision.gainOxygen)
         {
-            oxygenText.GetComponent<TextMeshProUGUI>().text = "Oxygen: " + (oxygenStatus + oxygenGained);
+            oxygenText.GetComponent<TextMeshProUGUI>().text = "Oxygen: " + ((int)oxygenStatus + oxygenGained);
         }
     }
 
