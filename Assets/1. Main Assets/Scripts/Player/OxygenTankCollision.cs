@@ -16,7 +16,11 @@ public class OxygenTankCollision : MonoBehaviour
     public static Boolean gainOxygen = false;
     public float timer;
     public Boolean startTimer;
+    private HarpoonGun harpoonGun;
    
+   private void Awake(){
+        harpoonGun = FindObjectOfType<HarpoonGun>();
+   }
 
     public void OnCollisionEnter(Collision collision)
     {
@@ -30,37 +34,29 @@ public class OxygenTankCollision : MonoBehaviour
  
             spawnedObject.transform.SetParent(this.transform);
 
-            startTimer = true;
+            StartCoroutine(WaitAndDelete());
         }
 
         // Check if collision was with astronaut
         if (collision.gameObject.CompareTag(playerTag))
         {
+            GrappleReset();
             Destroy(this.gameObject);
             gainOxygen = true;
         }
         
     }
 
-    //TODO: CORUTINE ??
-    void Update()
-    {
-        if (startTimer)
-        {
-            timer += Time.deltaTime;
-            Debug.Log("Timer Updated: " + timer);
+    IEnumerator WaitAndDelete(){
+        yield return new WaitForSeconds(3);
+        GrappleReset();
+        Destroy(this.gameObject);
+        Debug.Log("Oxygen Deleted");
+    }
 
-            //if time passed > leakCount... destroy instance
-            if (timer >= spawnDuration) ;
-            {
-                //destroy oxygen
-                Destroy(this.gameObject);
-                startTimer = false;
-                Debug.Log("Oxygen Deleted");
-            }
-        }
-        
-
+    private void GrappleReset(){
+        harpoonGun.Detatch();
+        harpoonGun.ResetSpringJoint();
     }
 
 }

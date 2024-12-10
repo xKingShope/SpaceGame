@@ -23,7 +23,7 @@ public class PlayerOxygen : MonoBehaviour
     void Update()
     {
        //using a while loop freezes the whole program
-        if(Input.GetKey(KeyCode.W) || Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.S) || Input.GetKey(KeyCode.D))
+        if(Input.GetKey(KeyCode.W) || Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.S) || Input.GetKey(KeyCode.D) && Input.GetKey("space"))
         {
             oxygenStatus -= .01;
             oxygenText.GetComponent<TextMeshProUGUI>().text = "Oxygen: " + ((int)oxygenStatus);
