@@ -5,6 +5,7 @@ using UnityEngine;
 public class Fracture : MonoBehaviour
 {
     private HarpoonGun harpoonGun; // Reference to the HarpoonGun script
+    public float spawnDuration = 120f;
 
     // Initialization
     private void Awake()
@@ -45,6 +46,8 @@ public class Fracture : MonoBehaviour
 
         // Destroy the original object
         Destroy(gameObject);
+
+        Destroy(fracturedInstance, spawnDuration);
     }
 
 

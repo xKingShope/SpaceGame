@@ -46,6 +46,9 @@ public class HarpoonGun : MonoBehaviour
     [SerializeField] private bool launchToPoint = true;
     [SerializeField] private float launchSpeed = 1f;
     public bool isGrappling = false;
+    [SerializeField] public float StaticForceValue = 2f;
+    [SerializeField] public float DynamicForceValue = 1f;
+
 
     // Grapple point is the harpoon arrow collision point
     [HideInInspector] public Vector3 grapplePoint;
@@ -65,11 +68,9 @@ public class HarpoonGun : MonoBehaviour
         lineRenderer.enabled = false;
     }
 
-   private void Update()
+   private void FixedUpdate()
     {
-        HandleInput();
         UpdateGrappleLine();
-        UpdateGunRotation();
 
         if (isProjectileActive)
         {
@@ -84,6 +85,12 @@ public class HarpoonGun : MonoBehaviour
         }
     }
 
+    private void Update()
+    {
+        HandleInput();
+        UpdateGunRotation();
+    }
+
     // ---------------------------------------------------------------------------------------
     // Input Handling
     private void HandleInput()
@@ -95,7 +102,7 @@ public class HarpoonGun : MonoBehaviour
                 LaunchProjectile();
             }
         
-            if (grappleCounter == 1)
+            if (projectileHasCollided == true)
             {
                 Detatch();
                 ResetSpringJoint();
@@ -172,7 +179,7 @@ public class HarpoonGun : MonoBehaviour
         float returnDistance = returnDirection.magnitude;
         returnDirection.Normalize();
         float returnForceMagnitude = launchSpeed * Mathf.Clamp01(returnDistance / maxSpeed);
-        returnForceMagnitude = Mathf.Min(returnForceMagnitude, 0.05f);
+        returnForceMagnitude = Mathf.Min(returnForceMagnitude, 0.3f);
         currentProjectile.AddForce(returnDirection * returnForceMagnitude, ForceMode.VelocityChange);
 
         if (returnDistance <= .4f)
@@ -228,7 +235,7 @@ public class HarpoonGun : MonoBehaviour
             grappleCounter = (distance <= 1f) ? 1 : 0;
 
             float forceMagnitude = launchSpeed * Mathf.Clamp01(distance / maxSpeed);
-            forceMagnitude = Mathf.Min(forceMagnitude, 0.5f); // Force magnitude limited for static objects
+            forceMagnitude = Mathf.Min(forceMagnitude, StaticForceValue); // Force magnitude limited for static objects
 
             // Apply force to the player to pull them towards the grapple point
             targetRigidbody.AddForce(direction * forceMagnitude, ForceMode.VelocityChange);
@@ -246,7 +253,7 @@ public class HarpoonGun : MonoBehaviour
             grappleCounter = (distance <= 1f) ? 1 : 0;
 
             float forceMagnitude = launchSpeed * Mathf.Clamp01(distance / maxSpeed);
-            forceMagnitude = Mathf.Min(forceMagnitude, (playerRigidbody.mass > objectRigidbody.mass || isObjectStatic) ? 0.005f : 0.7f);
+            forceMagnitude = Mathf.Min(forceMagnitude, (playerRigidbody.mass > objectRigidbody.mass || isObjectStatic) ? DynamicForceValue : StaticForceValue);
 
             // Apply force to the target Rigidbody
             targetRigidbody.AddForce(direction * forceMagnitude, ForceMode.VelocityChange);
