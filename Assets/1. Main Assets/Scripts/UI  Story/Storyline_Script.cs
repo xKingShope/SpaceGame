@@ -105,7 +105,7 @@ public class Storyline_Script : MonoBehaviour
                 yield return new WaitForSecondsRealtime(promptSpeed);
             }
         }
-        yield return new WaitForSecondsRealtime(promptSpeed);
+        yield return new WaitForSecondsRealtime(promptSpeed*4f);
         terminal_Canvas.gameObject.SetActive(false);
     }
 }
