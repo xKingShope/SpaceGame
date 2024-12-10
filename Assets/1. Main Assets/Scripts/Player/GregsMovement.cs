@@ -109,7 +109,7 @@ public class GregsMovement : MonoBehaviour
 
         //mouse follow
         //as of now causes crazyness
-        hips.transform.eulerAngles = new Vector3(0, 180 * m2cam.x + 90, hips.transform.eulerAngles.z);
+        transform.eulerAngles = new Vector3(0, 180 * (1-m2cam.x) + 270, hips.transform.eulerAngles.z);
 
     }
     //grabbing

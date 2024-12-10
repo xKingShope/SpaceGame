@@ -7,10 +7,10 @@ public class WeaponFollowMouse : MonoBehaviour
     {
         // Get the mouse position in world space
         Vector3 mousePosition = Input.mousePosition;
-        mousePosition.z = 1;
+        mousePosition.z = 7;
         mousePosition = Camera.ScreenToWorldPoint(mousePosition);
         mousePosition.z = 0; // Ensure we are on the same plane
-
+        
         transform.position = mousePosition;
         Debug.Log(mousePosition);
     }
