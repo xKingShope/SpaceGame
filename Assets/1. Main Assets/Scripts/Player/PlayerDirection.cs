@@ -9,6 +9,7 @@ public class PlayerDirection : MonoBehaviour
     private Vector3 moveAmount;
     private bool facingRight = true;
     public float rotationSpeed = 5f;
+    public float flipThreshold = 0.2f; // Threshold distance to trigger flip when mouse is near the player
 
     void Start()
     {
@@ -26,25 +27,27 @@ public class PlayerDirection : MonoBehaviour
         Vector3 mousePos = Input.mousePosition;
         mousePos.z = Camera.main.nearClipPlane; // Set Z depth for mouse position
         mousePos = Camera.main.ScreenToWorldPoint(mousePos);
-        
+
         // Calculate the angle to the mouse
         Vector3 directionToMouse = mousePos - transform.position;
         float angle = Mathf.Atan2(directionToMouse.y, directionToMouse.x) * Mathf.Rad2Deg;
 
-
-        
-        // Flip based on the mouse position
-        if (directionToMouse.x < 0 && facingRight)
+        // Check if the mouse is close enough to the player (within a threshold)
+        if (Mathf.Abs(directionToMouse.x) < flipThreshold)
         {
-            Flip();
-        }
-        else if (directionToMouse.x > 0 && !facingRight)
-        {
-            Flip();
+            // Only flip if the mouse is on the left or right of the player
+            if (directionToMouse.x < 0 && facingRight)
+            {
+                Flip();
+            }
+            else if (directionToMouse.x > 0 && !facingRight)
+            {
+                Flip();
+            }
         }
 
         // Rotate towards the mouse
-        Quaternion targetRotation = Quaternion.Euler(new Vector3(0f, 0f, angle -180f)); // Adjust based on initial sprite orientation
+        Quaternion targetRotation = Quaternion.Euler(new Vector3(0f, 0f, angle - 180f)); // Adjust based on initial sprite orientation
         transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, Time.deltaTime * rotationSpeed);
     }
 
