@@ -5,16 +5,19 @@ TagManager:
   serializedVersion: 2
   tags:
   - KinematicObject
+  - Explosion
+  - Harpoon
+  - EnemyZone
   layers:
   - Default
   - TransparentFX
   - Ignore Raycast
-  - 
+  - vlight
   - Water
   - UI
   - HarpoonGun
   - RopeWrapLayer
-  - 
+  - dynamicLayerMask
   - 
   - 
   - 
