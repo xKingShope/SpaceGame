@@ -19,7 +19,7 @@ public class Enemy_Jump : MonoBehaviour
 
     private void Start()
     {
-        Rb.AddTorque(0, 0, 3);
+        Rb.AddTorque(0, 0, 1);
     }
 
     private void OnCollisionEnter(Collision collision)

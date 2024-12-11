@@ -39,8 +39,7 @@ public class Ending : MonoBehaviour
         for (float alpha = 0; alpha < 1; alpha += .05f)
         {
             imageCanvasGroup.alpha = alpha;
-            Debug.Log(imageCanvasGroup.alpha);
-            yield return new WaitForSecondsRealtime(.25f);
+            yield return new WaitForSecondsRealtime(.1f);
         }
         yield return new WaitForSecondsRealtime(2);
         if (doRestart)
