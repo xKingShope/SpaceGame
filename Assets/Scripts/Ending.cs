@@ -1,7 +1,6 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using System.Collections;
 
 public class Ending : MonoBehaviour
 {
@@ -9,56 +8,48 @@ public class Ending : MonoBehaviour
     public float displayImageDuration = 1f;
     public GameObject player;
     public CanvasGroup WinBackgroundImageCanvasGroup;
-    //public AudioSource WinAudio;
     public CanvasGroup LoseBackgroundImageCanvasGroup;
-    //public AudioSource LoseAudio;
-
-    bool m_IsPlayerAtEscapePod;
-    bool m_IsPlayerDriftedOff;
-    float m_timer;
-    //bool m_HasAudioPlayed;
+    public CanvasGroup diedCanvasGroup;
 
     private void OnTriggerEnter(Collider other)
     {
         if (other.gameObject == player)
         {
-            m_IsPlayerAtEscapePod = true;
+            EndLevel(WinBackgroundImageCanvasGroup, false);
         }
     }
 
     public void LostPlayer()
     {
-        m_IsPlayerDriftedOff = true;
+        EndLevel(LoseBackgroundImageCanvasGroup, true);
     }
 
-    void Update()
+    public void PlayerDies()
     {
-        if (m_IsPlayerAtEscapePod)
-        {
-            EndLevel(WinBackgroundImageCanvasGroup, false);
-        }
-        else if (m_IsPlayerDriftedOff)
-        {
-            EndLevel(LoseBackgroundImageCanvasGroup, true);
-        }
+        EndLevel(diedCanvasGroup, true);
     }
 
-    void EndLevel(CanvasGroup imageCanvaseGroup, bool doRestart)
+    void EndLevel(CanvasGroup imageCanvasGroup, bool doRestart)
     {
-       
-        m_timer += Time.deltaTime;
-        imageCanvaseGroup.alpha = m_timer / fadeDuration;
+        StartCoroutine(alphaEnum(imageCanvasGroup, doRestart));
+    }
 
-        if (m_timer > fadeDuration + displayImageDuration)
+    IEnumerator alphaEnum(CanvasGroup  imageCanvasGroup, bool doRestart)
+    {
+        for (float alpha = 0; alpha < 1; alpha += .05f)
         {
-            if (doRestart)
-            {
-                SceneManager.LoadScene(0);
-            }
-            else
-            {
-                Application.Quit();
-            }
+            imageCanvasGroup.alpha = alpha;
+            Debug.Log(imageCanvasGroup.alpha);
+            yield return new WaitForSecondsRealtime(.25f);
+        }
+        yield return new WaitForSecondsRealtime(2);
+        if (doRestart)
+        {
+            SceneManager.LoadScene(0);
+        }
+        else
+        {
+            Application.Quit();
         }
     }
 }
