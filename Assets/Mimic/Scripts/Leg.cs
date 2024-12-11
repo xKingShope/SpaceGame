@@ -113,9 +113,12 @@ namespace MimicSpace
                 growTarget = 0;
             else if (growTarget == 1)
             {
-                // Check is the body is in line of sight from the foot position, and initiates the retractation if it isn't
+                // Get a LayerMask that excludes the "LegColliderLayer"
+                LayerMask ignoreLayer = ~LayerMask.GetMask("LegColliderLayer");
+
+                // Perform the Linecast and ignore the colliders on the "LegColliderLayer"
                 RaycastHit hit;
-                if (Physics.Linecast(footPosition, transform.position, out hit))
+                if (Physics.Linecast(footPosition, transform.position, out hit, ignoreLayer))
                 {
                     growTarget = 0;
                 }
