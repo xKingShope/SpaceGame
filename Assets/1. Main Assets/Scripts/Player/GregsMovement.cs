@@ -20,8 +20,8 @@ public class GregsMovement : MonoBehaviour
 
     public GameObject rightHand;
     public GameObject leftHandTarget;
-    public GameObject hips;
-    private Vector3 grabTarget;
+    public GameObject armature;
+    public GameObject rightHandTarget;
 
     // Start is called before the first frame update
     void Start()
@@ -89,27 +89,28 @@ public class GregsMovement : MonoBehaviour
                 Debug.Log("out");
             }
         }
+        if (grab && !Input.GetMouseButton(1))
+        {
+            Destroy(gameObject.GetComponent<HingeJoint>());
+            Destroy(leftHandTarget.GetComponent<HingeJoint>());
+            grab = false;
+        }
 
         //grabbing
         Vector3 newPoint;
-        if (grab)
+        if (!grab)
         {
             newPoint.x = Mathf.MoveTowards(leftHandTarget.transform.position.x, rightHand.transform.position.x, 1f);
             newPoint.y = Mathf.MoveTowards(leftHandTarget.transform.position.y, rightHand.transform.position.y, 1f);
             newPoint.z = Mathf.MoveTowards(leftHandTarget.transform.position.z, rightHand.transform.position.z, 1f);
+            leftHandTarget.transform.position = newPoint;
         }
-        else
-        {
-            newPoint.x = Mathf.MoveTowards(leftHandTarget.transform.position.x, rightHand.transform.position.x, 1f);
-            newPoint.y = Mathf.MoveTowards(leftHandTarget.transform.position.y, rightHand.transform.position.y, 1f);
-            newPoint.z = Mathf.MoveTowards(leftHandTarget.transform.position.z, rightHand.transform.position.z, 1f);
-        }
-        leftHandTarget.transform.position = newPoint;
 
 
+        rightHandTarget.transform.position = rightHand.transform.position+aim;
         //mouse follow
         //as of now causes crazyness
-        transform.eulerAngles = new Vector3(0, 180 * (1-m2cam.x) + 270, hips.transform.eulerAngles.z);
+        armature.transform.eulerAngles = new Vector3(0, 180 * (1-m2cam.x) + 270, armature.transform.eulerAngles.z);
 
     }
     //grabbing
@@ -120,14 +121,12 @@ public class GregsMovement : MonoBehaviour
         {
             gameObject.AddComponent<HingeJoint>();
             gameObject.GetComponent<HingeJoint>().connectedBody = collision.rigidbody;
-            grabTarget = collision.GetContact(0).point;
+            leftHandTarget.transform.position = collision.GetContact(0).point;
+            leftHandTarget.AddComponent<HingeJoint>();
+            leftHandTarget.GetComponent<HingeJoint>().connectedBody = collision.rigidbody;
             grab = true;
         }
-        else if (grab && !Input.GetMouseButton(1))
-        {
-            Destroy(gameObject.GetComponent<HingeJoint>());
-            grab = false;
-        }
+        
     }
 
 
