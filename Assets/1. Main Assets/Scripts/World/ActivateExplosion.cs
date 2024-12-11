@@ -7,10 +7,11 @@ public class ActivateExplosion : MonoBehaviour
     private HarpoonGun harpoonGun;
     public GameObject explosion;
     public bool StartTimer = false;
-    public float spawnDuration = 5f;
+    public float spawnDuration = 1f;
     public float steamCount = 2f;
     public string harpoonTag = "Harpoon";
     private bool stopExplosion = false;
+    public GameObject gasLeak;
 
     // Initialization
     private void Awake()
@@ -41,6 +42,12 @@ public class ActivateExplosion : MonoBehaviour
         if (collision.gameObject.CompareTag(harpoonTag) && !stopExplosion)
         {
             StartTimer = true;
+            ContactPoint firstContact = collision.contacts[0];
+            Vector3 firstCollisionPoint = firstContact.point;
+
+            GameObject spawnedEffect = Instantiate(gasLeak, firstCollisionPoint, transform.rotation);
+ 
+            spawnedEffect.transform.SetParent(this.transform);
         }
     }
 
