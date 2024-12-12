@@ -98,6 +98,9 @@ namespace MimicSpace
             // Normalize the direction and apply speed (no movement on Z axis)
             direction = direction.normalized * speed;
 
+            // Ensure no movement on the Z-axis (constrain Z to 0)
+            direction = new Vector3(direction.x, direction.y, 0f);
+
             // Apply the velocity directly to the position without smoothing (for debugging)
             transform.position += direction * Time.deltaTime;
 

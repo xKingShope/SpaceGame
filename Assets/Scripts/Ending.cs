@@ -53,7 +53,7 @@ public class Ending : MonoBehaviour
         {
             if (doRestart)
             {
-                SceneManager.LoadScene(0);
+                SceneManager.LoadScene("MainMenu");
             }
             else
             {
