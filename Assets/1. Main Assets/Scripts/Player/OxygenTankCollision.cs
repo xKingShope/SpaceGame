@@ -7,15 +7,12 @@ using UnityEngine;
 public class OxygenTankCollision : MonoBehaviour
 {
     public Rigidbody playerRigidbody;
-    public float playerOxygen;
     public GameObject oxygenLeak;
     public int spawnDuration = 1;
     public float leakCount = 2f;
     public string harpoonTag = "Harpoon";
     public string playerTag = "Player";
     public static Boolean gainOxygen = false;
-    public float timer;
-    public Boolean startTimer;
     private HarpoonGun harpoonGun;
    
    private void Awake()
@@ -41,6 +38,7 @@ public class OxygenTankCollision : MonoBehaviour
         // Check if collision was with astronaut
         if (collision.gameObject.CompareTag(playerTag))
         {
+            Debug.Log("collided with astronaut");
             harpoonGun.Detatch();
             harpoonGun.ResetSpringJoint();
             Destroy(this.gameObject);

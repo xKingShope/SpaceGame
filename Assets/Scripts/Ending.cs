@@ -43,7 +43,7 @@ public class Ending : MonoBehaviour
         }
     }
 
-    void EndLevel(CanvasGroup imageCanvaseGroup, bool doRestart)
+    public void EndLevel(CanvasGroup imageCanvaseGroup, bool doRestart)
     {
        
         m_timer += Time.deltaTime;

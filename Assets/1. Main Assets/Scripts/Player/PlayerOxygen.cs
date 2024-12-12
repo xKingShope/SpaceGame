@@ -12,26 +12,41 @@ public class PlayerOxygen : MonoBehaviour
     public Boolean DEBUG = true;
     float count;
     private int newOxygenStatus;
+    private Ending ending;
+    public CanvasGroup LoseBackgroundImageCanvasGroup;
 
     void Start()
     {
-        StartCoroutine("decrease");
         oxygenText = GameObject.Find("Oxygen Status").GetComponent<TextMeshProUGUI>();
-        oxygenText.GetComponent<TextMeshProUGUI>().text = "Oxygen: " + oxygenStatus;
+        oxygenText.GetComponent<TextMeshProUGUI>().text = "Oxygen: " + oxygenStatus + "%";
         if (DEBUG) Debug.Log("Oxygen text set");
+
+        //find ending script
+        ending = FindObjectOfType<Ending>();
+        if(ending == null){
+            Debug.LogError("Ending script not found!");
+        }
     }
     void Update()
     {
-       //using a while loop freezes the whole program
-        if(Input.GetKey(KeyCode.W) || Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.S) || Input.GetKey(KeyCode.D) && Input.GetKey("space"))
+        //if WASD + SPACE, decrease oxygen
+        if(Input.GetKey(KeyCode.W) || Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.S) || Input.GetKey(KeyCode.D))
         {
-            oxygenStatus -= .01;
-            oxygenText.GetComponent<TextMeshProUGUI>().text = "Oxygen: " + ((int)oxygenStatus);
-            if (DEBUG) Debug.Log("Decreased oxygen");
+            if( Input.GetKey("space")){
+                oxygenStatus -= .01;
+                oxygenText.GetComponent<TextMeshProUGUI>().text = "Oxygen: " + ((int)oxygenStatus);
+                if (DEBUG) Debug.Log("Decreased oxygen");
+            }
         }
+        // if oxygen tank collected, gain oxygen
         if (OxygenTankCollision.gainOxygen)
         {
             oxygenText.GetComponent<TextMeshProUGUI>().text = "Oxygen: " + ((int)oxygenStatus + oxygenGained);
+        }
+        //if oxygen depleted, DIE
+        if(oxygenStatus <= 0){
+            if(DEBUG) Debug.Log("Oxygen empty!");
+            ending.EndLevel(LoseBackgroundImageCanvasGroup, true);
         }
     }
 
